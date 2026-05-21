@@ -1,0 +1,63 @@
+spring:
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/yala_db}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASS:postgres}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+  task:
+    execution:
+      pool:
+        core-size: 4
+        max-size: 10
+        queue-capacity: 100
+  mail:
+    host: ${MAIL_HOST:smtp.resend.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:resend}
+    password: ${RESEND_API_KEY:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+jwt:
+  secret: ${JWT_SECRET:yala-secret-key-change-in-production-must-be-32-chars}
+  access-token-expiration-ms: 86400000
+  refresh-token-expiration-ms: 604800000
+
+stripe:
+  secret-key: ${STRIPE_SECRET_KEY:sk_test_placeholder}
+  webhook-secret: ${STRIPE_WEBHOOK_SECRET:whsec_placeholder}
+
+supabase:
+  url: ${SUPABASE_URL:https://placeholder.supabase.co}
+  key: ${SUPABASE_KEY:placeholder}
+  bucket: collectibles
+
+resend:
+  from: noreply@yala.pe
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    com.yala: INFO
+    org.springframework.security: WARN

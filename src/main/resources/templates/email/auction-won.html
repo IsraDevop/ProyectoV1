@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>You Won an Auction!</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f4; }
+        .container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 8px; padding: 40px; }
+        .header { background: #27AE60; color: white; padding: 20px; border-radius: 8px 8px 0 0; text-align: center; }
+        .amount { font-size: 2em; color: #27AE60; font-weight: bold; text-align: center; margin: 20px 0; }
+        .footer { text-align: center; color: #999; font-size: 12px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Congratulations! You Won!</h1>
+    </div>
+    <p>Hello, <strong th:text="${name}">User</strong>!</p>
+    <p>You won the auction. The final price is:</p>
+    <div class="amount">S/. <span th:text="${#numbers.formatDecimal(amount, 1, 2)}">0.00</span></div>
+    <p><strong>You have 48 hours to complete your payment.</strong></p>
+    <p>Log in to Yala to complete your purchase.</p>
+    <div class="footer">
+        <p>&copy; 2026 Yala. All rights reserved.</p>
+    </div>
+</div>
+</body>
+</html>
