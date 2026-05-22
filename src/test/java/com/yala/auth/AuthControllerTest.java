@@ -6,11 +6,10 @@ import com.yala.auth.dto.AuthResponse;
 import com.yala.auth.dto.LoginRequest;
 import com.yala.auth.dto.RegisterRequest;
 import com.yala.auth.service.AuthService;
+import com.yala.config.ControllerTestSecurityConfig;
 import com.yala.exception.DuplicateResourceException;
 import com.yala.exception.GlobalExceptionHandler;
 import com.yala.exception.UnauthorizedException;
-import com.yala.security.JwtAuthFilter;
-import com.yala.user.model.Role;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -25,20 +24,19 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(AuthController.class)
-@Import(GlobalExceptionHandler.class)
+@Import({GlobalExceptionHandler.class, ControllerTestSecurityConfig.class})
 class AuthControllerTest {
 
     @Autowired MockMvc mockMvc;
     @Autowired ObjectMapper objectMapper;
     @MockBean AuthService authService;
-    @MockBean JwtAuthFilter jwtAuthFilter;
 
     private final AuthResponse mockAuth = new AuthResponse("access", "refresh", 1L, "test@test.com", "Test", "USER");
 
     @Test
     void shouldReturn201WhenRegisterIsSuccessful() throws Exception {
         when(authService.register(any())).thenReturn(mockAuth);
-        RegisterRequest req = new RegisterRequest("Test User", "test@test.com", "Password1", Role.USER);
+        RegisterRequest req = new RegisterRequest("Test User", "test@test.com", "Password1");
 
         mockMvc.perform(post("/api/v1/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -50,7 +48,7 @@ class AuthControllerTest {
     @Test
     void shouldReturn409WhenEmailAlreadyExists() throws Exception {
         when(authService.register(any())).thenThrow(new DuplicateResourceException("Email already registered"));
-        RegisterRequest req = new RegisterRequest("Test User", "test@test.com", "Password1", Role.USER);
+        RegisterRequest req = new RegisterRequest("Test User", "test@test.com", "Password1");
 
         mockMvc.perform(post("/api/v1/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)

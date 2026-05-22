@@ -5,6 +5,7 @@ import com.yala.auth.dto.RegisterRequest;
 import com.yala.auth.service.AuthServiceImpl;
 import com.yala.exception.DuplicateResourceException;
 import com.yala.exception.UnauthorizedException;
+import com.yala.security.CciEncryptionService;
 import com.yala.security.JwtService;
 import com.yala.user.model.Role;
 import com.yala.user.model.User;
@@ -35,12 +36,13 @@ class AuthServiceTest {
     @Mock JwtService jwtService;
     @Mock AuthenticationManager authenticationManager;
     @Mock ApplicationEventPublisher eventPublisher;
+    @Mock CciEncryptionService cciEncryptionService;
 
     @InjectMocks AuthServiceImpl authService;
 
     @Test
     void shouldRegisterUserWhenEmailIsUnique() {
-        RegisterRequest req = new RegisterRequest("John", "john@test.com", "Password1", Role.USER);
+        RegisterRequest req = new RegisterRequest("John", "john@test.com", "Password1");
         when(userRepository.existsByEmail("john@test.com")).thenReturn(false);
         when(passwordEncoder.encode("Password1")).thenReturn("hash");
         when(userRepository.save(any(User.class))).thenAnswer(i -> {
@@ -60,7 +62,7 @@ class AuthServiceTest {
 
     @Test
     void shouldThrowEmailAlreadyExistsExceptionWhenEmailIsDuplicated() {
-        RegisterRequest req = new RegisterRequest("John", "john@test.com", "Password1", Role.USER);
+        RegisterRequest req = new RegisterRequest("John", "john@test.com", "Password1");
         when(userRepository.existsByEmail("john@test.com")).thenReturn(true);
 
         assertThatThrownBy(() -> authService.register(req))

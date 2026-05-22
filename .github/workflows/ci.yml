@@ -40,10 +40,12 @@ jobs:
           DB_USER: postgres
           DB_PASS: postgres
           JWT_SECRET: test-secret-key-for-ci-must-be-32-chars
+          CCI_ENCRYPTION_KEY: test-cci-encryption-key-for-ci-32-chars
           STRIPE_SECRET_KEY: sk_test_placeholder
           STRIPE_WEBHOOK_SECRET: whsec_placeholder
-          SUPABASE_URL: https://placeholder.supabase.co
-          SUPABASE_KEY: placeholder
+          AWS_REGION: us-east-1
+          AWS_S3_BUCKET: yala-ci-placeholder
+          AWS_S3_PUBLIC_URL_BASE: https://yala-ci-placeholder.s3.us-east-1.amazonaws.com
           RESEND_API_KEY: placeholder
 
       - name: Upload test results

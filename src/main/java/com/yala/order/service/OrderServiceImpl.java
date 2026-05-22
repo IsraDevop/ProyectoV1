@@ -1,10 +1,12 @@
 package com.yala.order.service;
 
+import com.yala.auction.repository.AuctionRepository;
 import com.yala.bid.repository.BidRepository;
 import com.yala.event.OrderConfirmedEvent;
 import com.yala.event.PaymentExpiredEvent;
 import com.yala.exception.*;
 import com.yala.listing.model.Listing;
+import com.yala.listing.model.ListingMode;
 import com.yala.listing.model.ListingStatus;
 import com.yala.listing.repository.ListingRepository;
 import com.yala.order.dto.CreateOrderRequest;
@@ -35,6 +37,7 @@ public class OrderServiceImpl implements OrderService {
     private final ListingRepository listingRepository;
     private final UserRepository userRepository;
     private final BidRepository bidRepository;
+    private final AuctionRepository auctionRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
@@ -48,6 +51,12 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new ResourceNotFoundException("Listing not found: " + request.listingId()));
         if (listing.getStatus() != ListingStatus.ACTIVE) {
             throw new InvalidOperationException("Listing is not available for purchase");
+        }
+        if (listing.getMode() != ListingMode.FIXED || listing.getFixedPrice() == null) {
+            throw new InvalidOperationException("Only fixed-price listings can be purchased directly");
+        }
+        if (listing.getSeller().getId().equals(buyer.getId())) {
+            throw new ForbiddenException("Seller cannot buy their own listing");
         }
         double amount = listing.getFixedPrice() != null ? listing.getFixedPrice() : 0.0;
         float commission = (float) (amount * 0.08);
@@ -153,8 +162,9 @@ public class OrderServiceImpl implements OrderService {
             userRepository.save(buyer);
             orderRepository.save(order);
 
-            Long auctionListingId = order.getListing().getId();
-            bidRepository.findSecondHighestBidByAuctionId(auctionListingId).ifPresentOrElse(
+            auctionRepository.findByListingId(order.getListing().getId())
+                    .flatMap(auction -> bidRepository.findSecondHighestBidByAuctionId(auction.getId()))
+                    .ifPresentOrElse(
                 secondBid -> {
                     Order secondOrder = Order.builder()
                             .amount(secondBid.getAmount())

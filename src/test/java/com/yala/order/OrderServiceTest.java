@@ -1,5 +1,6 @@
 package com.yala.order;
 
+import com.yala.auction.repository.AuctionRepository;
 import com.yala.bid.repository.BidRepository;
 import com.yala.exception.IdentityNotVerifiedException;
 import com.yala.listing.model.Listing;
@@ -41,6 +42,7 @@ class OrderServiceTest {
     @Mock ListingRepository listingRepository;
     @Mock UserRepository userRepository;
     @Mock BidRepository bidRepository;
+    @Mock AuctionRepository auctionRepository;
     @Mock ApplicationEventPublisher eventPublisher;
 
     @InjectMocks OrderServiceImpl orderService;
@@ -59,11 +61,11 @@ class OrderServiceTest {
                 .mode(ListingMode.FIXED).fixedPrice(200.0).status(ListingStatus.ACTIVE).seller(seller).build();
 
         Authentication auth = mock(Authentication.class);
-        when(auth.getName()).thenReturn("buyer@test.com");
+        lenient().when(auth.getName()).thenReturn("buyer@test.com");
         SecurityContext ctx = mock(SecurityContext.class);
-        when(ctx.getAuthentication()).thenReturn(auth);
+        lenient().when(ctx.getAuthentication()).thenReturn(auth);
         SecurityContextHolder.setContext(ctx);
-        when(userRepository.findByEmail("buyer@test.com")).thenReturn(Optional.of(buyer));
+        lenient().when(userRepository.findByEmail("buyer@test.com")).thenReturn(Optional.of(buyer));
     }
 
     @Test
@@ -76,7 +78,7 @@ class OrderServiceTest {
 
         when(orderRepository.findByStatusAndPaymentDeadlineBefore(eq(OrderStatus.PENDING), any()))
                 .thenReturn(List.of(expiredOrder));
-        when(bidRepository.findSecondHighestBidByAuctionId(any())).thenReturn(Optional.empty());
+        when(auctionRepository.findByListingId(listing.getId())).thenReturn(Optional.empty());
         when(listingRepository.save(any())).thenReturn(listing);
 
         orderService.processExpiredOrders();

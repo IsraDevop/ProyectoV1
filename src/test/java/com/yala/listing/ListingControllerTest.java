@@ -1,6 +1,7 @@
 package com.yala.listing;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yala.config.ControllerTestSecurityConfig;
 import com.yala.exception.GlobalExceptionHandler;
 import com.yala.exception.ListingLimitExceededException;
 import com.yala.exception.ResourceNotFoundException;
@@ -10,7 +11,6 @@ import com.yala.listing.dto.ListingResponse;
 import com.yala.listing.dto.ListingSummaryResponse;
 import com.yala.listing.model.ListingMode;
 import com.yala.listing.service.ListingService;
-import com.yala.security.JwtAuthFilter;
 import com.yala.user.dto.UserResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,13 +31,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ListingController.class)
-@Import(GlobalExceptionHandler.class)
+@Import({GlobalExceptionHandler.class, ControllerTestSecurityConfig.class})
 class ListingControllerTest {
 
     @Autowired MockMvc mockMvc;
     @Autowired ObjectMapper objectMapper;
     @MockBean ListingService listingService;
-    @MockBean JwtAuthFilter jwtAuthFilter;
 
     private final UserResponse mockUser = new UserResponse(1L, "Seller", "s@s.com", null, 5.0f, true, "SELLER", true);
 

@@ -1,13 +1,13 @@
 package com.yala.review;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yala.config.ControllerTestSecurityConfig;
 import com.yala.exception.GlobalExceptionHandler;
 import com.yala.exception.ReviewNotAllowedException;
 import com.yala.review.controller.ReviewController;
 import com.yala.review.dto.CreateReviewRequest;
 import com.yala.review.dto.ReviewResponse;
 import com.yala.review.service.ReviewService;
-import com.yala.security.JwtAuthFilter;
 import com.yala.user.dto.UserResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,13 +28,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ReviewController.class)
-@Import(GlobalExceptionHandler.class)
+@Import({GlobalExceptionHandler.class, ControllerTestSecurityConfig.class})
 class ReviewControllerTest {
 
     @Autowired MockMvc mockMvc;
     @Autowired ObjectMapper objectMapper;
     @MockBean ReviewService reviewService;
-    @MockBean JwtAuthFilter jwtAuthFilter;
 
     private final UserResponse mockUser = new UserResponse(1L, "Reviewer", "r@r.com", null, 4.5f, false, "USER", true);
     private final ReviewResponse mockReview = new ReviewResponse(1L, 5, "Excellent seller!", LocalDateTime.now(), mockUser);

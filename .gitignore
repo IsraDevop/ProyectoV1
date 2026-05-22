@@ -32,7 +32,7 @@ build/
 ### VS Code ###
 .vscode/
 
-### Environment — NEVER commit secrets ###
+### Environment - NEVER commit secrets ###
 .env
 .env.local
 .env.production

@@ -5,8 +5,8 @@ import com.yala.bid.controller.BidController;
 import com.yala.bid.dto.BidResponse;
 import com.yala.bid.dto.CreateBidRequest;
 import com.yala.bid.service.BidService;
+import com.yala.config.ControllerTestSecurityConfig;
 import com.yala.exception.*;
-import com.yala.security.JwtAuthFilter;
 import com.yala.user.dto.UserResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,13 +25,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(BidController.class)
-@Import(GlobalExceptionHandler.class)
+@Import({GlobalExceptionHandler.class, ControllerTestSecurityConfig.class})
 class BidControllerTest {
 
     @Autowired MockMvc mockMvc;
     @Autowired ObjectMapper objectMapper;
     @MockBean BidService bidService;
-    @MockBean JwtAuthFilter jwtAuthFilter;
 
     @Test
     @WithMockUser

@@ -7,6 +7,7 @@ import com.yala.auth.dto.RegisterRequest;
 import com.yala.event.UserRegisteredEvent;
 import com.yala.exception.DuplicateResourceException;
 import com.yala.exception.UnauthorizedException;
+import com.yala.security.CciEncryptionService;
 import com.yala.security.JwtService;
 import com.yala.user.dto.RegisterStoreRequest;
 import com.yala.user.model.Role;
@@ -30,6 +31,7 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final ApplicationEventPublisher eventPublisher;
+    private final CciEncryptionService cciEncryptionService;
 
     @Override
     @Transactional
@@ -37,12 +39,11 @@ public class AuthServiceImpl implements AuthService {
         if (userRepository.existsByEmail(request.email())) {
             throw new DuplicateResourceException("Email already registered: " + request.email());
         }
-        Role role = request.role() != null ? request.role() : Role.USER;
         User user = User.builder()
                 .name(request.name())
                 .email(request.email())
                 .passwordHash(passwordEncoder.encode(request.password()))
-                .role(role)
+                .role(Role.USER)
                 .build();
         userRepository.save(user);
         eventPublisher.publishEvent(new UserRegisteredEvent(this, user.getId(), user.getEmail(), user.getName()));
@@ -86,7 +87,7 @@ public class AuthServiceImpl implements AuthService {
                 .name(request.storeName())
                 .email(request.email())
                 .passwordHash(passwordEncoder.encode(request.password()))
-                .cci(request.cci())
+                .cci(cciEncryptionService.encrypt(request.cci()))
                 .role(Role.USER)
                 .isVerifiedSeller(false)
                 .build();

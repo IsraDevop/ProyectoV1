@@ -14,7 +14,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/images")
 @RequiredArgsConstructor
-@Tag(name = "Images", description = "Image upload to Supabase")
+@Tag(name = "Images", description = "Image upload to Amazon S3")
 public class ImageController {
 
     private final ImageService imageService;

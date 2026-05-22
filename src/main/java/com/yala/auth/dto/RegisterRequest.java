@@ -1,6 +1,5 @@
 package com.yala.auth.dto;
 
-import com.yala.user.model.Role;
 import jakarta.validation.constraints.*;
 
 public record RegisterRequest(
@@ -9,6 +8,5 @@ public record RegisterRequest(
         @NotBlank @Size(min = 8) @Pattern(
             regexp = "^(?=.*[A-Z])(?=.*\\d).+$",
             message = "Password must contain at least one uppercase letter and one number"
-        ) String password,
-        Role role
+        ) String password
 ) {}

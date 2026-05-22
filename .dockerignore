@@ -1,0 +1,13 @@
+.git
+.github
+.idea
+.vscode
+target
+*.log
+logs
+.env
+.env.local
+.env.production
+.env.example
+HELP.md
+CLAUDE.md

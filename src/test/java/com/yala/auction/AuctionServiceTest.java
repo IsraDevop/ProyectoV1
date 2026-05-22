@@ -56,11 +56,11 @@ class AuctionServiceTest {
                 .mode(ListingMode.AUCTION).status(ListingStatus.ACTIVE).seller(seller).build();
 
         Authentication auth = mock(Authentication.class);
-        when(auth.getName()).thenReturn("seller@test.com");
+        lenient().when(auth.getName()).thenReturn("seller@test.com");
         SecurityContext ctx = mock(SecurityContext.class);
-        when(ctx.getAuthentication()).thenReturn(auth);
+        lenient().when(ctx.getAuthentication()).thenReturn(auth);
         SecurityContextHolder.setContext(ctx);
-        when(userRepository.findByEmail("seller@test.com")).thenReturn(Optional.of(seller));
+        lenient().when(userRepository.findByEmail("seller@test.com")).thenReturn(Optional.of(seller));
     }
 
     @Test

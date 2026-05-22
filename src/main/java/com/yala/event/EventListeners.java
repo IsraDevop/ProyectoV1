@@ -12,7 +12,6 @@ import com.yala.notification.service.NotificationService;
 import com.yala.order.model.Order;
 import com.yala.order.model.OrderStatus;
 import com.yala.order.repository.OrderRepository;
-import com.yala.review.repository.ReviewRepository;
 import com.yala.user.model.User;
 import com.yala.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
@@ -41,7 +41,6 @@ public class EventListeners {
     private final BidRepository bidRepository;
     private final OrderRepository orderRepository;
     private final ListingRepository listingRepository;
-    private final ReviewRepository reviewRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
     @Async
@@ -80,7 +79,7 @@ public class EventListeners {
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onAuctionFinished(AuctionFinishedEvent event) {
         Auction auction = auctionRepository.findById(event.getAuctionId()).orElse(null);
         if (auction == null) return;
@@ -133,7 +132,7 @@ public class EventListeners {
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Transactional(readOnly = true)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onOrderConfirmed(OrderConfirmedEvent event) {
         orderRepository.findById(event.getOrderId()).ifPresent(order -> {
             User buyer = order.getBuyer();
@@ -143,13 +142,6 @@ public class EventListeners {
                     event.getSellerId(),
                     NotificationType.PAYMENT_RECEIVED,
                     "Payment received. Please process the shipment. Transfer in 1-3 business days.");
-
-            reviewRepository.findAverageRatingByRecipientId(event.getSellerId()).ifPresent(avg -> {
-                userRepository.findById(event.getSellerId()).ifPresent(seller -> {
-                    seller.setReputation(avg.floatValue());
-                    userRepository.save(seller);
-                });
-            });
         });
     }
 
