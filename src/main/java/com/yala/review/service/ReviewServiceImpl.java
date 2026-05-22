@@ -56,7 +56,13 @@ public class ReviewServiceImpl implements ReviewService {
                 .recipient(recipient)
                 .build();
 
-        return ReviewResponse.from(reviewRepository.save(review));
+        Review saved = reviewRepository.save(review);
+        reviewRepository.findAverageRatingByRecipientId(recipient.getId()).ifPresent(avg -> {
+            recipient.setReputation(avg.floatValue());
+            userRepository.save(recipient);
+        });
+
+        return ReviewResponse.from(saved);
     }
 
     @Override

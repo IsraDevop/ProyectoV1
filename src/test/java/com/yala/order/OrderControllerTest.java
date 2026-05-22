@@ -1,6 +1,7 @@
 package com.yala.order;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yala.config.ControllerTestSecurityConfig;
 import com.yala.exception.GlobalExceptionHandler;
 import com.yala.exception.InvalidOperationException;
 import com.yala.listing.dto.ListingSummaryResponse;
@@ -8,7 +9,6 @@ import com.yala.order.controller.OrderController;
 import com.yala.order.dto.CreateOrderRequest;
 import com.yala.order.dto.OrderResponse;
 import com.yala.order.service.OrderService;
-import com.yala.security.JwtAuthFilter;
 import com.yala.user.dto.UserResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,13 +29,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(OrderController.class)
-@Import(GlobalExceptionHandler.class)
+@Import({GlobalExceptionHandler.class, ControllerTestSecurityConfig.class})
 class OrderControllerTest {
 
     @Autowired MockMvc mockMvc;
     @Autowired ObjectMapper objectMapper;
     @MockBean OrderService orderService;
-    @MockBean JwtAuthFilter jwtAuthFilter;
 
     private final UserResponse mockUser = new UserResponse(1L, "User", "u@u.com", null, 0f, false, "USER", true);
     private final ListingSummaryResponse mockListing = new ListingSummaryResponse(1L, "Item", "PSA 10", "ACTIVE", 100.0, null, mockUser);

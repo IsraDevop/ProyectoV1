@@ -17,7 +17,7 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
            "AND (:condition IS NULL OR l.condition = :condition) " +
            "AND (:minPrice IS NULL OR l.fixedPrice >= :minPrice) " +
            "AND (:maxPrice IS NULL OR l.fixedPrice <= :maxPrice) " +
-           "AND (:q IS NULL OR LOWER(l.title) LIKE LOWER(CONCAT('%', :q, '%')))")
+           "AND (COALESCE(:q, '') = '' OR LOWER(l.title) LIKE LOWER(CONCAT('%', COALESCE(:q, ''), '%')))")
     Page<Listing> findWithFilters(
             @Param("categoryId") Long categoryId,
             @Param("mode") ListingMode mode,

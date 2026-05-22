@@ -1,17 +1,22 @@
+server:
+  port: ${SERVER_PORT:8081}
+
 spring:
+  config:
+    import: optional:file:.env[.properties]
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/yala_db}
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5433/yala_db}
     username: ${DB_USER:postgres}
     password: ${DB_PASS:postgres}
     driver-class-name: org.postgresql.Driver
   jpa:
+    open-in-view: false
     hibernate:
       ddl-auto: update
     show-sql: false
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
   thymeleaf:
     prefix: classpath:/templates/
     suffix: .html
@@ -43,10 +48,18 @@ stripe:
   secret-key: ${STRIPE_SECRET_KEY:sk_test_placeholder}
   webhook-secret: ${STRIPE_WEBHOOK_SECRET:whsec_placeholder}
 
-supabase:
-  url: ${SUPABASE_URL:https://placeholder.supabase.co}
-  key: ${SUPABASE_KEY:placeholder}
-  bucket: collectibles
+aws:
+  region: ${AWS_REGION:us-east-1}
+  s3:
+    bucket: ${AWS_S3_BUCKET:yala-collectibles-dev}
+    public-url-base: ${AWS_S3_PUBLIC_URL_BASE:}
+
+security:
+  cci-encryption-key: ${CCI_ENCRYPTION_KEY:${JWT_SECRET:yala-secret-key-change-in-production-must-be-32-chars}}
+
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173,http://localhost:8081}
 
 resend:
   from: noreply@yala.pe

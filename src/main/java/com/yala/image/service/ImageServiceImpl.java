@@ -3,7 +3,7 @@ package com.yala.image.service;
 import com.yala.exception.ImageLimitExceededException;
 import com.yala.exception.InvalidOperationException;
 import com.yala.exception.ResourceNotFoundException;
-import com.yala.image.client.SupabaseStorageClient;
+import com.yala.image.client.S3StorageClient;
 import com.yala.image.model.Image;
 import com.yala.image.repository.ImageRepository;
 import com.yala.listing.model.Listing;
@@ -25,7 +25,7 @@ public class ImageServiceImpl implements ImageService {
 
     private final ImageRepository imageRepository;
     private final ListingRepository listingRepository;
-    private final SupabaseStorageClient storageClient;
+    private final S3StorageClient storageClient;
 
     @Override
     @Transactional

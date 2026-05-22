@@ -9,6 +9,7 @@ import com.stripe.param.PaymentIntentCreateParams;
 import com.yala.auction.model.AuctionStatus;
 import com.yala.auction.repository.AuctionRepository;
 import com.yala.event.OrderConfirmedEvent;
+import com.yala.exception.InvalidOperationException;
 import com.yala.exception.PaymentException;
 import com.yala.exception.ResourceNotFoundException;
 import com.yala.listing.model.ListingStatus;
@@ -29,6 +30,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 @Slf4j
 @Service
@@ -58,6 +61,17 @@ public class PaymentServiceImpl implements PaymentService {
 
         if (!order.getBuyer().getId().equals(currentUserId)) {
             throw new com.yala.exception.ForbiddenException("Not authorized to pay this order");
+        }
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new InvalidOperationException("Only PENDING orders can be paid");
+        }
+        if (order.getPaymentDeadline() != null && order.getPaymentDeadline().isBefore(LocalDateTime.now())) {
+            throw new InvalidOperationException("Payment deadline has expired for this order");
+        }
+        boolean alreadyPaid = paymentRepository.findByOrderId(order.getId()).stream()
+                .anyMatch(payment -> payment.getStatus() == PaymentStatus.SUCCESS);
+        if (alreadyPaid) {
+            throw new InvalidOperationException("Order has already been paid");
         }
 
         try {

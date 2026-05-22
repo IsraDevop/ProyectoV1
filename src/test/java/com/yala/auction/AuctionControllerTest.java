@@ -5,9 +5,9 @@ import com.yala.auction.controller.AuctionController;
 import com.yala.auction.dto.AuctionResponse;
 import com.yala.auction.dto.CreateAuctionRequest;
 import com.yala.auction.service.AuctionService;
+import com.yala.config.ControllerTestSecurityConfig;
 import com.yala.exception.GlobalExceptionHandler;
 import com.yala.exception.InvalidOperationException;
-import com.yala.security.JwtAuthFilter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -27,13 +27,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(AuctionController.class)
-@Import(GlobalExceptionHandler.class)
+@Import({GlobalExceptionHandler.class, ControllerTestSecurityConfig.class})
 class AuctionControllerTest {
 
     @Autowired MockMvc mockMvc;
     @Autowired ObjectMapper objectMapper;
     @MockBean AuctionService auctionService;
-    @MockBean JwtAuthFilter jwtAuthFilter;
 
     private final AuctionResponse mockAuction = new AuctionResponse(
             1L, 100.0, 100.0, LocalDateTime.now(), LocalDateTime.now().plusDays(3), "ACTIVE", null, 0L);

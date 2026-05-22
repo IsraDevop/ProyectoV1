@@ -1,0 +1,812 @@
+{
+  "info": {
+    "name": "Yala Backend API",
+    "description": "Postman collection for the Yala collectibles auction marketplace backend. It documents the main API flows required by the DBP rubric: authentication, users, listings, auctions, bids, orders, payments, reviews, notifications, images and admin approvals.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8081"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "refreshToken",
+      "value": ""
+    },
+    {
+      "key": "userId",
+      "value": "1"
+    },
+    {
+      "key": "sellerUserId",
+      "value": "2"
+    },
+    {
+      "key": "categoryId",
+      "value": "1"
+    },
+    {
+      "key": "listingId",
+      "value": "1"
+    },
+    {
+      "key": "auctionId",
+      "value": "1"
+    },
+    {
+      "key": "orderId",
+      "value": "1"
+    },
+    {
+      "key": "reviewUserId",
+      "value": "2"
+    },
+    {
+      "key": "notificationId",
+      "value": "1"
+    },
+    {
+      "key": "stripeSignature",
+      "value": "t=timestamp,v1=signature"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register user",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Buyer\",\n  \"email\": \"buyer.demo@yala.pe\",\n  \"password\": \"Test1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Creates a buyer account, returns JWT tokens and triggers the welcome email event."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const body = pm.response.json();",
+                  "  pm.collectionVariables.set('accessToken', body.accessToken);",
+                  "  pm.collectionVariables.set('refreshToken', body.refreshToken);",
+                  "  pm.collectionVariables.set('userId', body.userId);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"buyer@yala.pe\",\n  \"password\": \"Test1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Authenticates an existing user and stores JWT tokens for protected requests."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const body = pm.response.json();",
+                  "  pm.collectionVariables.set('accessToken', body.accessToken);",
+                  "  pm.collectionVariables.set('refreshToken', body.refreshToken);",
+                  "  pm.collectionVariables.set('userId', body.userId);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh token",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/refresh-token",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "refresh-token"
+              ]
+            },
+            "description": "Issues a new access token using the refresh token."
+          }
+        },
+        {
+          "name": "Register store",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"storeName\": \"Yala Collectibles Store\",\n  \"address\": \"Av. Principal 123, Lima\",\n  \"email\": \"store.demo@yala.pe\",\n  \"password\": \"Test1234\",\n  \"cci\": \"00212345678901234567\",\n  \"phoneNumber\": \"+51999999999\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/register-store",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register-store"
+              ]
+            },
+            "description": "Creates a seller store request. Admin approval is required before selling."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get me",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/users/me",
+            "description": "Returns the authenticated profile without sensitive fields."
+          }
+        },
+        {
+          "name": "Update me",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Buyer\",\n  \"avatarUrl\": \"https://example.com/avatar.png\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/v1/users/me",
+            "description": "Updates editable profile information for the authenticated user."
+          }
+        },
+        {
+          "name": "Get public user profile",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/users/{{userId}}",
+            "description": "Public profile endpoint used by listing and review views."
+          }
+        },
+        {
+          "name": "Get user listings",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/users/{{sellerUserId}}/listings?page=0&size=10",
+            "description": "Returns paginated public listings for a seller."
+          }
+        },
+        {
+          "name": "Verify identity",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dni\": \"12345678\",\n  \"firstName\": \"Test\",\n  \"lastName\": \"Buyer\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/v1/users/me/verify-identity",
+            "description": "Verifies DNI before the user can bid or buy."
+          }
+        },
+        {
+          "name": "Request seller verification",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/users/me/request-seller",
+            "description": "Requests seller upgrade after meeting participation and win requirements."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "List categories",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/categories",
+            "description": "Lists collectible categories used by listings."
+          }
+        },
+        {
+          "name": "Create category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Other\",\n  \"description\": \"Other collectible items\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/v1/categories",
+            "description": "Admin-only endpoint to create a new category."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Listings",
+      "item": [
+        {
+          "name": "Create listing",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Charizard Base Set PSA 10\",\n  \"description\": \"Graded Pokemon TCG card in excellent condition.\",\n  \"mode\": \"AUCTION\",\n  \"fixedPrice\": null,\n  \"condition\": \"PSA 10 (Gem Mint)\",\n  \"categoryId\": {{categoryId}},\n  \"tags\": [\"First Edition\", \"Holographic\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/v1/listings",
+            "description": "Seller/admin endpoint to publish a collectible listing."
+          }
+        },
+        {
+          "name": "Search listings",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/listings?category={{categoryId}}&mode=AUCTION&q=Charizard&page=0&size=10",
+            "description": "Paginated listing search with category, mode, price and text filters."
+          }
+        },
+        {
+          "name": "Get listing by id",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/listings/{{listingId}}",
+            "description": "Returns listing details, seller, category, images and auction summary."
+          }
+        },
+        {
+          "name": "Update listing",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Charizard Base Set PSA 10\",\n  \"description\": \"Updated description.\",\n  \"mode\": \"AUCTION\",\n  \"fixedPrice\": null,\n  \"condition\": \"PSA 10 (Gem Mint)\",\n  \"categoryId\": {{categoryId}},\n  \"tags\": [\"Holographic\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/v1/listings/{{listingId}}",
+            "description": "Owner-only update, blocked when the listing has pending or confirmed orders."
+          }
+        },
+        {
+          "name": "Delete listing",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/v1/listings/{{listingId}}",
+            "description": "Owner-only soft delete by changing the listing status to CANCELLED."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auctions",
+      "item": [
+        {
+          "name": "Create auction",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"listingId\": {{listingId}},\n  \"startingPrice\": 100.0,\n  \"durationDays\": 3,\n  \"scheduledStartAt\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/v1/auctions",
+            "description": "Seller/admin endpoint to create immediate or scheduled auctions."
+          }
+        },
+        {
+          "name": "List active auctions",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/auctions?page=0&size=10",
+            "description": "Paginated public list of active auctions."
+          }
+        },
+        {
+          "name": "Get auction by id",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/auctions/{{auctionId}}",
+            "description": "Returns auction details including current price and winner when available."
+          }
+        },
+        {
+          "name": "Get auction bids",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/auctions/{{auctionId}}/bids?page=0&size=10",
+            "description": "Public bid history for an auction."
+          }
+        },
+        {
+          "name": "Cancel auction",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/v1/auctions/{{auctionId}}",
+            "description": "Owner-only auction cancellation, allowed only before the first bid."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bids",
+      "item": [
+        {
+          "name": "Place bid",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"auctionId\": {{auctionId}},\n  \"amount\": 150.0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/v1/bids",
+            "description": "Places a bid. Requires DNI verification and an active auction."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Create direct order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"listingId\": {{listingId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/v1/orders",
+            "description": "Creates a pending direct purchase order for a fixed-price listing."
+          }
+        },
+        {
+          "name": "My orders",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/orders/my-orders?page=0&size=10",
+            "description": "Returns authenticated user orders as buyer or seller."
+          }
+        },
+        {
+          "name": "Get order",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/orders/{{orderId}}",
+            "description": "Returns one order and its commission, seller net amount and deadline."
+          }
+        },
+        {
+          "name": "Confirm order",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/v1/orders/{{orderId}}/confirm",
+            "description": "Seller-only transition from PENDING to CONFIRMED."
+          }
+        },
+        {
+          "name": "Cancel order",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/v1/orders/{{orderId}}/cancel",
+            "description": "Cancels an order before payment is confirmed."
+          }
+        },
+        {
+          "name": "Ship order",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/v1/orders/{{orderId}}/ship?trackingNumber=TRACK-123",
+            "description": "Seller marks a confirmed order as in transit."
+          }
+        },
+        {
+          "name": "Complete order",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/v1/orders/{{orderId}}/complete",
+            "description": "Buyer confirms receipt, enabling mutual reviews."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Create payment intent",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": {{orderId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/v1/payments/intent",
+            "description": "Creates a Stripe PaymentIntent for a pending order."
+          }
+        },
+        {
+          "name": "Stripe webhook",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Stripe-Signature",
+                "value": "{{stripeSignature}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"payment_intent.succeeded\",\n  \"data\": {\n    \"object\": {\n      \"id\": \"pi_demo\",\n      \"metadata\": {\n        \"orderId\": \"{{orderId}}\"\n      }\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/v1/payments/webhook",
+            "description": "Public Stripe webhook endpoint. Use Stripe CLI for real signed events."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reviews",
+      "item": [
+        {
+          "name": "Create review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": {{orderId}},\n  \"rating\": 5,\n  \"comment\": \"Excellent transaction\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/v1/reviews",
+            "description": "Creates one review for a completed order."
+          }
+        },
+        {
+          "name": "Get reviews by user",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/reviews/user/{{reviewUserId}}?page=0&size=10",
+            "description": "Public paginated reviews received by a user."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "List notifications",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/notifications?page=0&size=10",
+            "description": "Returns authenticated user notifications newest first."
+          }
+        },
+        {
+          "name": "Mark notification as read",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/v1/notifications/{{notificationId}}/read",
+            "description": "Marks one notification as read."
+          }
+        },
+        {
+          "name": "Mark all notifications as read",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/v1/notifications/read-all",
+            "description": "Marks every authenticated user notification as read."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Images",
+      "item": [
+        {
+          "name": "Upload listing image",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "listingId",
+                  "value": "{{listingId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/api/v1/images/upload",
+            "description": "Uploads a JPG, PNG or WEBP image to Amazon S3."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Approve store",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/admin/stores/{{sellerUserId}}/approve",
+            "description": "Admin-only endpoint to approve a store and grant seller permissions."
+          }
+        },
+        {
+          "name": "Approve seller verification",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/admin/verifications/{{sellerUserId}}/approve",
+            "description": "Admin-only endpoint to approve a user seller verification request."
+          }
+        }
+      ]
+    }
+  ]
+}
