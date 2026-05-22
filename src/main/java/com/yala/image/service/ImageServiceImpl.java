@@ -3,6 +3,7 @@ package com.yala.image.service;
 import com.yala.exception.ImageLimitExceededException;
 import com.yala.exception.InvalidOperationException;
 import com.yala.exception.ResourceNotFoundException;
+import com.yala.exception.StorageException;
 import com.yala.image.client.S3StorageClient;
 import com.yala.image.model.Image;
 import com.yala.image.repository.ImageRepository;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -54,8 +56,8 @@ public class ImageServiceImpl implements ImageService {
                     .build();
             imageRepository.save(image);
             return url;
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to upload image: " + e.getMessage(), e);
+        } catch (IOException e) {
+            throw new StorageException("Failed to upload image to storage", e);
         }
     }
 }
